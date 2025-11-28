@@ -1,111 +1,153 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const { Pool } = require('pg');
-const { OpenAI } = require('openai');
+// backend/server.js → FINAL & PERFECT VERSION (2025 Ready)
+
+require("dotenv").config();
+const express = require("express");
+const cors = require("cors");
+const helmet = require("helmet");
+const morgan = require("morgan");
+const { Pool } = require("pg");
+const { OpenAI } = require("openai");
 
 const app = express();
 
-// CORS — allows your live frontend + localhost
+// ==================== MIDDLEWARE ====================
+app.use(helmet({
+  contentSecurityPolicy: false,
+  crossOriginEmbedderPolicy: false
+}));
+
 app.use(cors({
-  origin: ["http://localhost:3000", "https://examedge-mr-sk534.vercel.app", "*.vercel.app", "*.railway.app"],
+  origin: [
+    "http://localhost:3000",
+    "https://examedge-mr-sk534.vercel.app",
+    "https://examedge.vercel.app",
+    "https://yourdomain.com"
+  ],
   credentials: true
 }));
 
-app.use(express.json());
+app.use(morgan("dev"));
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// DATABASE — works everywhere (Railway, Render, local, Vercel)
+// ==================== DATABASE ====================
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false
+  ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
 });
 
-// OPENAI
+pool.connect((err) => {
+  if (err) {
+    console.error("Database connection failed ❌", err.stack);
+    process.exit(1);
+  } else {
+    console.log("PostgreSQL connected successfully");
+  }
+});
+
+// ==================== OPENAI ====================
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-const JWT_SECRET = process.env.JWT_SECRET || "nexathon-win-2025";
-
-// HEALTH CHECK
-app.get('/', (req, res) => {
-  res.json({ message: "ExamEdge Backend LIVE", time: new Date().toISOString() });
-});
-
-// REGISTER
-app.post('/api/auth/register', async (req, res) => {
-  try {
-    const { name, email, password, targetExam = "JEE Main & Advanced" } = req.body;
-    if (!name || !email || !password) return res.status(400).json({ error: "Missing fields" });
-
-    const hashed = await bcrypt.hash(password, 10);
-    const result = await pool.query(
-      `INSERT INTO users (name, email, password, target_exam) 
-       VALUES ($1, $2, $3, $4) 
-       RETURNING id, name, email, target_exam`,
-      [name, email, hashed, targetExam]
-    );
-
-    const token = jwt.sign({ userId: result.rows[0].id }, JWT_SECRET, { expiresIn: '7d' });
-    res.json({ success: true, token, user: result.rows[0] });
-  } catch (err) {
-    console.error("Register error:", err.message);
-    res.status(400).json({ success: false, error: err.message.includes("duplicate key") ? "Email already exists" : "Server error" });
-  }
-});
-
-// LOGIN
-app.post('/api/auth/login', async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const { rows } = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-    const user = rows[0];
-
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      return res.status(401).json({ error: "Wrong email or password" });
+// ==================== HEALTH CHECK ====================
+app.get("/", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "ExamEdge Backend is LIVE & Ready for JEE/NEET 2026!",
+    timestamp: new Date().toISOString(),
+    status: "operational",
+    endpoints: {
+      auth: "/api/auth/register | /api/auth/login",
+      mock: "/api/mock (protected)",
+      doubt: "POST /api/doubt"
     }
-
-    const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '7d' });
-    res.json({
-      success: true,
-      token,
-      user: { id: user.id, name: user.name, email: user.email, target_exam: user.target_exam }
-    });
-  } catch (err) {
-    res.status(500).json({ error: "Server error" });
-  }
+  });
 });
 
-// AI DOUBT SOLVER
-app.post('/api/doubt', async (req, res) => {
+// ==================== ROUTES ====================
+// Auth Routes (register, login, me, logout)
+app.use("/api/auth", require("./routes/auth"));
+
+// Mock Test Routes (protected by JWT)
+app.use("/api/mock", require("./routes/mock"));
+
+// AI Doubt Solver (Public for now – make protected later if needed)
+app.post("/api/doubt", async (req, res) => {
   try {
-    const { question } = req.body;
-    if (!question) return res.status(400).json({ error: "No question" });
+    const { question, userId } = req.body;
+
+    if (!question || question.trim() === "") {
+      return res.status(400).json({
+        success: false,
+        error: "Question is required"
+      });
+    }
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
-        { role: "system", content: "You are ExamEdge AI — India's smartest exam tutor. Answer clearly, step-by-step, in English + Hindi if needed." },
-        { role: "user", content: question }
+        {
+          role: "system",
+          content: "You are ExamEdge AI — India's smartest JEE & NEET tutor. Answer in clear, simple English + Hindi if helpful. Use bullet points, steps, and diagrams (text-based) when possible. Be encouraging and accurate."
+        },
+        {
+          role: "user",
+          content: question
+        }
       ],
-      temperature: 0.7,
-      max_tokens: 800
+      temperature: 0.6,
+      max_tokens: 1000,
+      top_p: 1,
+      frequency_penalty: 0,
+      presence_penalty: 0
     });
 
-    res.json({ answer: completion.choices[0].message.content });
+    const answer = completion.choices[0].message.content.trim();
+
+    res.status(200).json({
+      success: true,
+      answer: answer,
+      usage: completion.usage
+    });
+
   } catch (err) {
-    console.error("AI Error:", err.message);
-    res.status(500).json({ error: "AI is busy, try again!" });
+    console.error("OpenAI Error:", err.message);
+    res.status(500).json({
+      success: false,
+      error: "AI is busy right now. Please try again in a few seconds!"
+    });
   }
 });
 
-// START SERVER
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`ExamEdge Backend LIVE on port ${PORT}`);
-  console.log(`→ http://localhost:${PORT}`);
+// ==================== 404 & ERROR HANDLER ====================
+app.use("*", (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "Route not found",
+    path: req.originalUrl
+  });
 });
 
-module.exports = app; // for Vercel/Render
+app.use((err, req, res, next) => {
+  console.error("Unhandled Error:", err.stack);
+  res.status(500).json({
+    success: false,
+    message: "Internal server error",
+    error: process.env.NODE_ENV === "development" ? err.message : undefined
+  });
+});
+
+// ==================== START SERVER ====================
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log("==================================================");
+  console.log("   EXAMEDGE BACKEND IS LIVE AND RUNNING");
+  console.log(`   Local:      http://localhost:${PORT}`);
+  console.log(`   Deployed:   Check your platform logs`);
+  console.log(`   Time:       ${new Date().toLocaleString("en-IN")}`);
+  console.log("==================================================");
+});
+
+module.exports = app; // Required for Vercel, Railway, Render
