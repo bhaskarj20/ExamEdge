@@ -72,6 +72,9 @@ app.use("/api/auth", require("./routes/auth"));
 // Mock Test Routes (protected by JWT)
 app.use("/api/mock", require("./routes/mock"));
 
+app.use("/api/user", require("./routes/user"));
+
+
 // AI Doubt Solver (Public for now – make protected later if needed)
 app.post("/api/doubt", async (req, res) => {
   try {
@@ -149,5 +152,6 @@ app.listen(PORT, () => {
   console.log(`   Time:       ${new Date().toLocaleString("en-IN")}`);
   console.log("==================================================");
 });
+module.exports = pool;
 
 module.exports = app; // Required for Vercel, Railway, Render
