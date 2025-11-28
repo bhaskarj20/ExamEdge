@@ -113,10 +113,10 @@ export default function Register() {
                   <option value="" disabled>Select Your Target Exam</option>
                   <option value="JEE" className="bg-gray-900 text-white">JEE Main + Advanced</option>
                   <option value="NEET" className="bg-gray-900 text-white">NEET</option>
-                  <option value="Both" className="bg-gray-900 text-white">JEE + NEET Both</option>
-                  <option value="WBJEE" className="bg-gray-900 text-white">WBJEE</option>
+                  
+                  <option value="VITEE" className="bg-gray-900 text-white">WBJEE</option>
                   <option value="BITSAT" className="bg-gray-900 text-white">BITSAT</option>
-                  <option value="NDA" className="bg-gray-900 text-white">NDA</option>
+                  
                 </select>
                 <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none">
                   <svg className="w-6 h-6 text-cyan-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">

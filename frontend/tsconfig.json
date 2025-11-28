@@ -12,9 +12,7 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    "plugins": [
-      { "name": "next" }
-    ],
+    "plugins": [{ "name": "next" }],
 
     "baseUrl": "src",
     "paths": {
@@ -28,6 +26,5 @@
     "**/*.tsx",
     ".next/types/**/*.ts"
   ],
-
   "exclude": ["node_modules"]
 }

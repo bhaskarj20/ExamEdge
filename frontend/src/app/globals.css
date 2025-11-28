@@ -1,24 +1,46 @@
-/* frontend/src/app/globals.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  :root {
-    --background: 210 40% 98%;
-    --foreground: 220 50% 15%;
-    --primary: 210 80% 55%;
-    --primary-foreground: 0 0% 100%;
-    --border: 214 30% 90%;
-    --radius: 1rem;
+/* Custom animations for the glowing blobs */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.1);
   }
 }
 
-@layer components {
-  .glass {
-    @apply backdrop-blur-xl bg-white/10 border border-white/20 shadow-2xl;
-  }
-  .input-glass {
-    @apply bg-white/10 border border-white/30 text-white placeholder-white/50 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-400/30 transition-all duration-300;
-  }
+.animate-pulse {
+  animation: pulse 8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.delay-700 {
+  animation-delay: 0.7s;
+}
+
+/* Optional: Smooth page transitions */
+* {
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Smooth beautiful scrollbar */
+.custom-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb {
+  background: rgba(59, 130, 246, 0.4); /* blue thumb */
+  border-radius: 10px;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.7);
+}
+
+.custom-scroll::-webkit-scrollbar-track {
+  background: transparent;
 }
