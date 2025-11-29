@@ -30,3 +30,11 @@ Thumbs.db
 
 # Build
 dist/
+
+backend/mock-data/
+
+frontend/public/
+
+health-check.js
+
+backend/data/syllabus/
