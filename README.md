@@ -2,6 +2,8 @@
 
 Your all-in-one platform to practice MCQs, access study material, track progress, and prepare for exams like *JEE, NEET, VITEEE, BITSAT, WBJEE*, and more.
 
+Currently featuring 4 major exams — **JEE Main • NEET • BITSAT • VITEEE** — and many more exams coming soon!
+
 ### ExamEdge Preview
 
 *Live Demo:* [https://exam-edge-five.vercel.app/](https://exam-edge-five.vercel.app/)
