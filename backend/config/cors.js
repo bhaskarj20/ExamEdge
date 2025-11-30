@@ -1,9 +1,9 @@
-// backend/config/cors.js
+
 const allowedOrigins = [
   "http://localhost:3000",
   "https://yourapp.vercel.app",
   "https://examedge.in",
-  // Add your deployed frontend URLs later
+  "https://exam-edge-five.vercel.app/"
 ];
 
 const corsOptions = {
