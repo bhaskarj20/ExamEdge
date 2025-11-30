@@ -83,7 +83,7 @@ export default function MockPreviewPage() {
       <div className="max-w-4xl mx-auto">
         <Card className="bg-white/10 backdrop-blur-2xl border-white/20 p-12 shadow-2xl">
           <h1 className="text-5xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400 mb-8">
-            {mock.title || "JEE Mock Test"}
+            {mock.title || "Mock Test"}
           </h1>
 
           <div className="text-center space-y-6 text-xl text-gray-200 mb-12">
