@@ -1,8 +1,12 @@
 'use client';
+
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+
+// THIS ONE LINE FIXES EVERYTHING — works locally + on Vercel forever
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 export default function Register() {
   const [form, setForm] = useState({
@@ -21,7 +25,7 @@ export default function Register() {
     setLoading(true);
 
     try {
-      const res = await fetch('http://localhost:5000/api/auth/register', {
+      const res = await fetch(`${API_URL}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -39,7 +43,7 @@ export default function Register() {
       if (res.ok && data.success && data.token) {
         localStorage.setItem('accessToken', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
-        toast.success('Account created successfully!');
+        toast.success('Account created successfully! 🎉');
         setTimeout(() => router.push('/dashboard'), 1000);
       } else {
         toast.error(data.message || 'Registration failed');
@@ -54,14 +58,12 @@ export default function Register() {
 
   return (
     <>
-      {/* Full Deep Blue Background */}
       <div className="fixed inset-0 bg-gradient-to-br from-cyan-700 via-blue-800 to-indigo-900" />
 
       <div className="relative min-h-screen flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl">
           <div className="backdrop-blur-3xl bg-white/8 border border-white/10 rounded-3xl shadow-2xl p-10 sm:p-12 md:p-16">
 
-            {/* Logo & Tagline */}
             <div className="text-center mb-12">
               <h1 className="text-6xl sm:text-7xl md:text-8xl font-black text-cyan-300 drop-shadow-2xl">
                 ExamEdge
@@ -73,7 +75,6 @@ export default function Register() {
 
             <form onSubmit={handleSubmit} className="space-y-7">
 
-              {/* Full Name */}
               <input
                 required
                 type="text"
@@ -83,7 +84,6 @@ export default function Register() {
                 className="w-full px-8 py-6 text-lg rounded-2xl bg-white/10 border border-white/20 text-white placeholder:text-white/50 focus:border-cyan-400 focus:outline-none focus:ring-4 focus:ring-cyan-400/40 transition-all backdrop-blur-xl"
               />
 
-              {/* Email */}
               <input
                 required
                 type="email"
@@ -93,7 +93,6 @@ export default function Register() {
                 className="w-full px-8 py-6 text-lg rounded-2xl bg-white/10 border border-white/20 text-white placeholder:text-white/50 focus:border-cyan-400 focus:outline-none focus:ring-4 focus:ring-cyan-400/40 transition-all backdrop-blur-xl"
               />
 
-              {/* Phone */}
               <input
                 type="tel"
                 placeholder="Phone Number (optional)"
@@ -102,7 +101,6 @@ export default function Register() {
                 className="w-full px-8 py-6 text-lg rounded-2xl bg-white/10 border border-white/20 text-white placeholder:text-white/50 focus:border-cyan-400 focus:outline-none focus:ring-4 focus:ring-cyan-400/40 transition-all backdrop-blur-xl"
               />
 
-              {/* Target Exam Dropdown */}
               <div className="relative">
                 <select
                   required
@@ -113,10 +111,8 @@ export default function Register() {
                   <option value="" disabled>Select Your Target Exam</option>
                   <option value="JEE" className="bg-gray-900 text-white">JEE Main + Advanced</option>
                   <option value="NEET" className="bg-gray-900 text-white">NEET</option>
-                  
-                  <option value="VITEEE" className="bg-gray-900 text-white">WBJEE</option>
+                  <option value="WBJEE" className="bg-gray-900 text-white">WBJEE</option>
                   <option value="BITSAT" className="bg-gray-900 text-white">BITSAT</option>
-                  
                 </select>
                 <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none">
                   <svg className="w-6 h-6 text-cyan-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -125,7 +121,6 @@ export default function Register() {
                 </div>
               </div>
 
-              {/* Target Year Dropdown */}
               <div className="relative">
                 <select
                   required
@@ -146,7 +141,6 @@ export default function Register() {
                 </div>
               </div>
 
-              {/* Password */}
               <input
                 required
                 type="password"
@@ -156,7 +150,6 @@ export default function Register() {
                 className="w-full px-8 py-6 text-lg rounded-2xl bg-white/10 border border-white/20 text-white placeholder:text-white/50 focus:border-cyan-400 focus:outline-none focus:ring-4 focus:ring-cyan-400/40 transition-all backdrop-blur-xl"
               />
 
-              {/* Submit Button */}
               <button
                 type="submit"
                 disabled={loading}
@@ -166,7 +159,6 @@ export default function Register() {
               </button>
             </form>
 
-            {/* Login Link */}
             <p className="text-center mt-12 text-cyan-100 text-lg sm:text-xl">
               Already have an account?{' '}
               <Link href="/login" className="font-bold text-white underline decoration-2 underline-offset-4 hover:text-cyan-300 transition">
