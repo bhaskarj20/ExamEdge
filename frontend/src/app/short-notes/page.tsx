@@ -1,107 +1,136 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Download, FolderOpen } from "lucide-react";
+import { useEffect, useState } from "react";
+import { BookOpen, Download, ArrowLeft } from "lucide-react";
+import Link from "next/link";
+
+type UserType = {
+  name: string;
+  email: string;
+  exam: string;
+};
+
+// === YOUR REAL GOOGLE DRIVE ZIP FILES ===
+const SHORT_NOTES: Record<string, { name: string; id: string }[]> = {
+  physics: [
+    { name: "Complete Physics Short Notes", id: "16qOf4iIDfojrFMdqtA_mS1BqSnu0DKvH" },
+  ],
+  chemistry: [
+    { name: "Complete Chemistry Short Notes", id: "1r-4QsixeuIBu07dT1DJ2w9fMiMpkMYtb" },
+  ],
+  maths: [
+    { name: "Complete Maths Short Notes", id: "1eCsy_Qow0ulU3ajdB1Bm3E-IsIBjnuwK" },
+  ]
+};
 
 export default function ShortNotesPage() {
-  const subjects = ["physics", "chemistry", "maths"];
-  const [subject, setSubject] = useState("physics");
-  const [files, setFiles] = useState<string[]>([]);
+  const [user, setUser] = useState<UserType | null>(null);
+  const [selectedSubject, setSelectedSubject] = useState<string>("physics");
 
   useEffect(() => {
-    loadFiles(subject);
-  }, [subject]);
+    const u = JSON.parse(localStorage.getItem("user") || "null");
+    if (u) setUser(u);
+  }, []);
 
-  const loadFiles = async (sub: string) => {
-    const res = await fetch(`/api/list-zip?folder=short-notes/${sub}`);
-    const data = await res.json();
-    setFiles(data.files || []);
+  if (!user) return null;
+
+  const notes = SHORT_NOTES[selectedSubject];
+
+  const handleDownload = (id: string, name: string) => {
+    const link = `https://drive.google.com/uc?export=download&id=${id}`;
+    const a = document.createElement('a');
+    a.href = link;
+    a.download = `ExamEdge_${name.replace(/ /g, '_')}.zip`;
+    a.click();
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 px-6 py-10">
+    <>
+      {/* Background */}
+      <div className="fixed inset-0 bg-gradient-to-br from-cyan-700 via-blue-800 to-indigo-900" />
       
-      <div className="w-full max-w-2xl mx-auto text-white flex flex-col items-center">
+      <div className="relative min-h-screen px-4 py-12">
+        <div className="max-w-6xl mx-auto">
 
-        {/* Title */}
-        <h1 className="text-5xl font-extrabold mb-6 bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent text-center drop-shadow-lg">
-          Short Notes
-        </h1>
-
-        {/* Subtitle */}
-        <p className="text-gray-300 mb-10 text-center max-w-lg">
-          Download quick ZIP revision notes for Physics, Chemistry, and Maths.
-        </p>
-
-        {/* Subject Selector */}
-        <div className="flex gap-3 mb-10 bg-white/5 rounded-2xl px-4 py-3 border border-white/10 backdrop-blur-xl shadow-lg">
-          {subjects.map((sub) => (
-            <button
-              key={sub}
-              onClick={() => setSubject(sub)}
-              className={`px-5 py-2 rounded-xl capitalize text-lg transition-all ${
-                subject === sub
-                  ? "bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-xl scale-105"
-                  : "bg-white/10 text-gray-300 hover:bg-white/20"
-              }`}
-            >
-              {sub}
-            </button>
-          ))}
-        </div>
-
-        {/* Notes List (Centered Column) */}
-        <div className="w-full flex flex-col items-center gap-6">
-
-          {files.map((file, i) => {
-            const zipPath = `/short-notes/${subject}/${file}`;
-
-            return (
-              <Card
-                key={i}
-                className="w-full p-6 bg-white/10 border border-white/20 rounded-2xl backdrop-blur-xl 
-                           hover:shadow-2xl hover:scale-[1.02] transition-all duration-300"
-              >
-                <h3 className="text-2xl font-semibold text-orange-300 text-center mb-6 truncate">
-                  {file.replace(".zip", "")}
-                </h3>
-
-                <div className="flex justify-center gap-4">
-                  <Button
-                    className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:opacity-90"
-                    onClick={() => window.open(zipPath, "_blank")}
-                  >
-                    <FolderOpen className="w-5 h-5 mr-2" />
-                    View
-                  </Button>
-
-                  <Button
-                    className="bg-gradient-to-r from-red-600 to-orange-500 hover:opacity-90"
-                    onClick={() => {
-                      const link = document.createElement("a");
-                      link.href = zipPath;
-                      link.download = file;
-                      link.click();
-                    }}
-                  >
-                    <Download className="w-5 h-5 mr-2" />
-                    Download
-                  </Button>
-                </div>
-              </Card>
-            );
-          })}
-
-          {files.length === 0 && (
-            <p className="text-gray-400 text-lg text-center mt-4">
-              No short notes available for <span className="text-orange-400">{subject}</span>.
+          {/* Header - EXACT SAME AS QUESTION PAPER PAGE */}
+          <div className="text-center mb-16">
+            <h1 className="text-6xl md:text-8xl font-black text-cyan-300 mb-4">
+              Short Notes
+            </h1>
+            <p className="text-cyan-100 text-xl md:text-2xl">
+              Last Minute Revision • Formula Sheets • Handwritten Style
             </p>
-          )}
+          </div>
 
+          {/* Back Button */}
+          <Link href="/dashboard" className="fixed top-8 left-8 text-cyan-300 hover:text-white flex items-center gap-2 text-lg font-bold z-50">
+            <ArrowLeft /> Back to Dashboard
+          </Link>
+
+          {/* Subject Buttons - EXACT SAME SIZE AS QUESTION PAPER */}
+          <div className="flex flex-wrap justify-center gap-6 mb-16">
+            {Object.keys(SHORT_NOTES).map((sub) => (
+              <button
+                key={sub}
+                onClick={() => setSelectedSubject(sub)}
+                className={`px-10 py-5 rounded-2xl text-2xl font-bold transition-all capitalize
+                  ${selectedSubject === sub 
+                    ? "bg-emerald-500 text-white shadow-2xl scale-110" 
+                    : "bg-white/10 text-cyan-200 border border-white/30 hover:bg-white/20"
+                  }`}
+              >
+                {sub}
+              </button>
+            ))}
+          </div>
+
+          {/* Notes Cards - EXACT SAME AS QUESTION PAPER PAGE */}
+          <div className="flex justify-center">
+            <div className="w-full max-w-2xl">
+              <div className="space-y-8">
+                {notes.map((note) => (
+                  <div
+                    key={note.id}
+                    className="backdrop-blur-xl bg-white/10 rounded-3xl p-10 border border-white/20 hover:bg-white/15 transition-all group"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-6">
+                        <BookOpen className="w-16 h-16 text-cyan-400" />
+                        <div>
+                          <h3 className="text-3xl font-bold text-white">
+                            {note.name}
+                          </h3>
+                          <p className="text-cyan-200 mt-2">High Quality • Best for Final Revision</p>
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => handleDownload(note.id, note.name)}
+                        className="bg-emerald-600 hover:bg-emerald-500 text-white px-8 py-4 rounded-xl font-bold flex items-center gap-3 shadow-lg"
+                      >
+                        <Download className="w-6 h-6" /> Download ZIP
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {notes.length === 0 && (
+                <div className="text-center text-cyan-200 text-3xl font-bold py-20">
+                  No notes available for {selectedSubject}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="text-center mt-24 text-cyan-200">
+            <p className="text-2xl font-bold">
+              Made with ❤️ for Last Minute Warriors
+            </p>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
