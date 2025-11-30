@@ -12,7 +12,7 @@ export default function MockTestListPage() {
   const [loading, setLoading] = useState(true);
 
   const profile = typeof window !== "undefined" ? JSON.parse(localStorage.getItem("profile") || "{}") : {};
-  const targetExam = (profile.target_exam || "jee").toLowerCase();
+  const targetExam = (profile.target_exam || "").toLowerCase();
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://examedge-7o44.onrender.com";
 
@@ -47,14 +47,14 @@ export default function MockTestListPage() {
   }
 
   // EXTRACT CLEAN MOCK NUMBER (Mock 1, Mock 2, Mock 3...)
-  const getMockNumber = (mock: any) => {
+  /*const getMockNumber = (mock: any) => {
     const id = mock.id || "";
     const numFromId = id.replace(/[^0-9]/g, "");
     if (numFromId) return numFromId;
 
     const numFromTitle = mock.title?.match(/\d+/)?.[0] || mock.paper_name?.match(/\d+/)?.[0];
     return numFromTitle || "1";
-  };
+  };*/
 
   if (loading) {
     return (
@@ -96,7 +96,7 @@ export default function MockTestListPage() {
                 {/* Clean Mock Title */}
                 <div className="text-center mb-8">
                   <h2 className="text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">
-                    Mock {getMockNumber(mock)}
+                    Mock
                   </h2>
                   <p className="text-gray-400 mt-4 text-lg font-medium">Full Syllabus • 99.9+ Percentile Level</p>
                 </div>
