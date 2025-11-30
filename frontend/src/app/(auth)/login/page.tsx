@@ -1,8 +1,12 @@
 'use client';
+
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+
+// THIS LINE FIXES EVERYTHING — works on localhost AND Vercel
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' });
@@ -14,7 +18,7 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const res = await fetch('https://examedge-7o44.onrender.com', {
+      const res = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -25,14 +29,11 @@ export default function Login() {
       const data = await res.json();
 
       if (res.ok && data.token) {
-        // Save token (jo bhi tum use karte ho)
         localStorage.setItem('accessToken', data.token);
-        // Agar backend user bhi bhejta hai to
         if (data.user) localStorage.setItem('user', JSON.stringify(data.user));
 
         toast.success('Login successful! Redirecting...');
         
-        // Redirect to dashboard
         setTimeout(() => {
           router.push('/dashboard');
         }, 800);
