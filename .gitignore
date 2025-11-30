@@ -31,7 +31,7 @@ Thumbs.db
 # Build
 dist/
 
-backend/mock-data/
+
 
 frontend/public/
 
