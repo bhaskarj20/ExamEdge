@@ -167,9 +167,9 @@ export default function MockTestResultPage() {
         {/* Final Motivation */}
         <div className="text-center mt-20">
           <p className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-pink-400 to-red-500">
-            JEE 2026 IS YOURS.
+            STAGE IS YOURS.
           </p>
-          <p className="text-2xl text-gray-400 mt-4">— Made by ExamEdge • For the Future IITians of India</p>
+          <p className="text-2xl text-gray-400 mt-4">— Made by ExamEdge • For the Future Aspirants of India</p>
         </div>
       </div>
     </div>

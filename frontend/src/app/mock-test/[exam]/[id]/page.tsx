@@ -85,7 +85,7 @@ export default function MockTestPage() {
 
     const result = {
       mockId: mock.id || id,
-      mockTitle: mock.paper_name || mock.title || "JEE Mock Test",
+      mockTitle: mock.paper_name || mock.title || "Mock Test",
       marks,
       correct,
       wrong,

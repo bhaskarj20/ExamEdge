@@ -171,24 +171,7 @@ export default function Dashboard() {
         <p className="text-xl text-gray-300">Your Rank 1 journey continues</p>
       </div>
 
-      {/* STATS */}
-      <div className="max-w-6xl mx-auto px-6 grid grid-cols-3 gap-6 my-12">
-        <Card className="bg-gradient-to-br from-orange-600 to-red-700 p-6 text-center">
-          <Flame className="w-12 h-12 mx-auto mb-2" />
-          <p className="text-4xl font-bold">{streak}</p>
-          <p className="text-gray-200">Day Streak</p>
-        </Card>
-        <Card className="bg-gradient-to-br from-cyan-600 to-blue-700 p-6 text-center">
-          <Trophy className="w-12 h-12 mx-auto mb-2" />
-          <p className="text-4xl font-bold">{totalMocks}</p>
-          <p className="text-gray-200">Mocks Given</p>
-        </Card>
-        <Card className="bg-gradient-to-br from-emerald-600 to-teal-700 p-6 text-center">
-          <CheckCircle className="w-12 h-12 mx-auto mb-2" />
-          <p className="text-4xl font-bold">{accuracy}%</p>
-          <p className="text-gray-200">Accuracy</p>
-        </Card>
-      </div>
+     
 
       {/* FEATURE CARDS */}
       <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-32">
