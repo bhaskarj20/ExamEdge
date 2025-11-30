@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { ChevronLeft, ChevronRight, Send } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -12,7 +13,7 @@ export default function MockTestPage() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<{ [key: number]: number }>({});
   const [timeLeft, setTimeLeft] = useState(0);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isFinished, setIsFinished] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem("currentMock");
@@ -20,25 +21,23 @@ export default function MockTestPage() {
 
     if (!saved || !startTime) {
       toast.error("No active test found!");
-      router.push("/mock-test/jee");
+      router.push("/mock-test");
       return;
     }
 
     const mockData = JSON.parse(saved);
     setMock(mockData);
 
-    const durationMs = (mockData.duration || 180) * 60 * 1000;
-    const elapsed = Date.now() - parseInt(startTime);
-    const remaining = Math.max(0, durationMs - elapsed);
+    const totalSeconds = (mockData.duration || 180) * 60;
+    const elapsed = Math.floor((Date.now() - parseInt(startTime)) / 1000);
+    const remaining = Math.max(0, totalSeconds - elapsed);
+    setTimeLeft(remaining);
 
-    setTimeLeft(Math.floor(remaining / 1000));
-
-    // Timer countdown
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
-          handleSubmit();
+          handleFinalSubmit();
           return 0;
         }
         return prev - 1;
@@ -48,148 +47,168 @@ export default function MockTestPage() {
     return () => clearInterval(timer);
   }, [router]);
 
-  const handleSubmit = async () => {
-    if (isSubmitting) return;
-    setIsSubmitting(true);
+  const handleFinalSubmit = () => {
+    if (isFinished) return;
+    setIsFinished(true);
 
-    // Calculate score
     let correct = 0;
     mock.questions.forEach((q: any, i: number) => {
       if (answers[i] === q.correctAnswer) correct++;
     });
 
-    const score = {
-      total: mock.questions.length,
+    const totalQ = mock.questions.length;
+    const wrong = Object.keys(answers).length - correct;
+    const marks = correct * 4 - wrong * 1;
+
+    const result = {
+      mockId: mock.id || "unknown",
+      mockTitle: mock.title || "JEE Mock Test",
+      marks,
       correct,
-      wrong: Object.keys(answers).length - correct,
-      unattempted: mock.questions.length - Object.keys(answers).length,
-      percentage: ((correct / mock.questions.length) * 100).toFixed(2),
-      marks: correct * 4 - (Object.keys(answers).length - correct) * 1, // JEE marking
-      timeTaken: mock.duration * 60 - timeLeft,
+      wrong,
+      unattempted: totalQ - Object.keys(answers).length,
+      percentage: ((correct / totalQ) * 100).toFixed(2),
+      timeTaken: (mock.duration * 60) - timeLeft,
+      total: totalQ,
     };
 
-    // Save result
-    localStorage.setItem("lastMockResult", JSON.stringify({
-      ...score,
-      mockTitle: mock.title,
-      mockId: mock.id || "mock2",
-      date: new Date().toISOString(),
-    }));
-
-    // Cleanup
+    localStorage.setItem("lastMockResult", JSON.stringify(result));
     localStorage.removeItem("currentMock");
     localStorage.removeItem("mockStartTime");
 
-    toast.success(`Test Submitted! You scored ${correct}/${mock.questions.length} 🎉`);
-
-    // Redirect to result page (create this later or redirect to home)
-    router.push(`/mock-test/result`);
+    toast.success("Test Submitted Successfully! 🔥", { duration: 2000 });
+    setTimeout(() => router.push("/mock-test/result"), 2000);
   };
 
   const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+    const h = Math.floor(seconds / 3600).toString().padStart(2, "0");
+    const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, "0");
+    const s = (seconds % 60).toString().padStart(2, "0");
+    return `${h}:${m}:${s}`;
   };
 
-  if (!mock) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <p className="text-3xl text-cyan-400 animate-pulse">Loading your test...</p>
-      </div>
-    );
-  }
+  if (!mock) return null;
 
-  const question = mock.questions[currentQuestion];
+  const q = mock.questions[currentQuestion];
+  const isLastQuestion = currentQuestion === mock.questions.length - 1;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-black text-white">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-black text-white flex flex-col">
       {/* Header */}
-      <div className="bg-black/50 backdrop-blur border-b border-white/10 p-6 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
+      <div className="bg-black/90 backdrop-blur-xl border-b border-cyan-500/30 sticky top-0 z-50 shadow-2xl">
+        <div className="max-w-7xl mx-auto px-8 py-6 flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-cyan-400">{mock.title}</h1>
-            <p className="text-gray-300">Question {currentQuestion + 1} of {mock.questions.length}</p>
+            <h1 className="text-2xl md:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">
+              {mock.title}
+            </h1>
+            <p className="text-gray-300 mt-1">
+              Question <span className="text-cyan-400 font-bold">{currentQuestion + 1}</span> / {mock.questions.length}
+            </p>
           </div>
-          <div className="text-4xl font-mono font-bold text-red-500 animate-pulse">
-            {formatTime(timeLeft)}
+          <div className="text-right">
+            <p className="text-sm text-gray-400 uppercase tracking-wider">Time Remaining</p>
+            <p className="text-5xl font-mono font-bold text-red-500 animate-pulse">
+              {formatTime(timeLeft)}
+            </p>
           </div>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto p-8">
-        <Card className="bg-white/5 backdrop-blur-xl border-white/10 p-10 mt-8">
-          <div className="text-2xl font-semibold mb-8 leading-relaxed">
-            Q{currentQuestion + 1}. {question.question}
-          </div>
+      {/* Main Content - Takes all space */}
+      <div className="flex-1 max-w-5xl mx-auto w-full p-8 pb-32"> {/* pb-32 to make space for fixed buttons */}
+        <Card className="bg-white/5 backdrop-blur-xl border-white/10 shadow-2xl h-full">
+          <div className="p-10 md:p-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-cyan-300 mb-12 leading-relaxed">
+              Q{currentQuestion + 1}. {q.question}
+            </h2>
 
-          <div className="space-y-5">
-            {question.options.map((opt: string, i: number) => (
-              <Button
-                key={i}
-                variant={answers[currentQuestion] === i ? "default" : "outline"}
-                className={`w-full text-left text-lg py-8 px-6 justify-start transition-all ${
-                  answers[currentQuestion] === i
-                    ? "bg-cyan-600 hover:bg-cyan-500 border-cyan-400"
-                    : "border-white/30 hover:bg-white/10"
-                }`}
-                onClick={() => setAnswers(prev => ({ ...prev, [currentQuestion]: i }))}
-              >
-                <span className="mr-4 font-bold">{String.fromCharCode(65 + i)}.</span>
-                {opt}
-              </Button>
-            ))}
-          </div>
-
-          {/* Navigation & Submit */}
-          <div className="flex justify-between items-center mt-12">
-            <Button
-              onClick={() => setCurrentQuestion(prev => Math.max(0, prev - 1))}
-              disabled={currentQuestion === 0}
-              variant="outline"
-              size="lg"
-            >
-              ← Previous
-            </Button>
-
-            <div className="text-center">
-              <p className="text-sm text-gray-400 mb-2">
-                {Object.keys(answers).length} / {mock.questions.length} Answered
-              </p>
-              <div className="flex gap-2">
-                {mock.questions.map((_: any, i: number) => (
-                  <div
-                    key={i}
-                    className={`w-3 h-3 rounded-full ${
-                      answers[i] !== undefined
-                        ? "bg-cyan-500"
-                        : i === currentQuestion
-                        ? "bg-yellow-500 animate-pulse"
-                        : "bg-gray-700"
-                    }`}
-                  />
-                ))}
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {q.options.map((opt: string, i: number) => (
+                <Button
+                  key={i}
+                  onClick={() => setAnswers({ ...answers, [currentQuestion]: i })}
+                  variant={answers[currentQuestion] === i ? "default" : "outline"}
+                  className={`h-32 text-left text-xl font-medium transition-all ${
+                    answers[currentQuestion] === i
+                      ? "bg-gradient-to-r from-cyan-500 to-emerald-500 border-2 border-cyan-300 shadow-2xl shadow-cyan-500/50"
+                      : "border-2 border-white/30 hover:border-cyan-400 hover:bg-white/10"
+                  }`}
+                >
+                  <span className="font-bold text-2xl mr-6">{String.fromCharCode(65 + i)}.</span>
+                  {opt}
+                </Button>
+              ))}
             </div>
+          </div>
+        </Card>
+      </div>
 
-            {currentQuestion === mock.questions.length - 1 ? (
+      {/* FIXED VERTICAL BUTTONS AT BOTTOM-RIGHT — LIKE REAL JEE EXAM */}
+      <div className="fixed bottom-8 right-8 z-50 flex flex-col gap-4">
+        <div className="bg-black/80 backdrop-blur-xl rounded-2xl p-6 border border-cyan-500/50 shadow-2xl">
+          <div className="space-y-4">
+
+            {/* Previous */}
+            {currentQuestion > 0 && (
               <Button
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-                className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-xl font-bold px-12 py-6"
-              >
-                {isSubmitting ? "Submitting..." : "Submit Test"}
-              </Button>
-            ) : (
-              <Button
-                onClick={() => setCurrentQuestion(prev => Math.min(mock.questions.length - 1, prev + 1))}
+                onClick={() => setCurrentQuestion(c => c - 1)}
                 size="lg"
+                variant="outline"
+                className="w-64 py-8 text-xl font-bold border-2"
               >
-                Next →
+                <ChevronLeft className="w-7 h-7 mr-3" />
+                Previous
+              </Button>
+            )}
+
+            {/* Next */}
+            {!isLastQuestion && (
+              <Button
+                onClick={() => setCurrentQuestion(c => c + 1)}
+                size="lg"
+                className="w-64 py-8 text-xl font-bold bg-gradient-to-r from-emerald-500 to-cyan-600 hover:from-emerald-400 hover:to-cyan-500 shadow-xl"
+              >
+                Next
+                <ChevronRight className="w-7 h-7 ml-3" />
+              </Button>
+            )}
+
+            {/* Submit */}
+            {isLastQuestion && (
+              <Button
+                onClick={handleFinalSubmit}
+                disabled={isFinished}
+                size="lg"
+                className="w-64 py-10 text-2xl font-bold bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-500 hover:to-pink-500 shadow-2xl transform hover:scale-105 transition-all"
+              >
+                <Send className="w-8 h-8 mr-4" />
+                {isFinished ? "Submitting..." : "SUBMIT TEST"}
               </Button>
             )}
           </div>
-        </Card>
+        </div>
+
+        {/* Question Palette - Small floating */}
+        <div className="bg-black/80 backdrop-blur-xl rounded-2xl p-4 border border-white/20">
+          <p className="text-center text-gray-400 text-sm mb-3 font-bold">Jump to Question</p>
+          <div className="grid grid-cols-6 gap-2 max-h-64 overflow-y-auto">
+            {mock.questions.map((_: any, i: number) => (
+              <div
+                key={i}
+                onClick={() => setCurrentQuestion(i)}
+                className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold cursor-pointer transition-all ${
+                  i === currentQuestion
+                    ? "bg-yellow-500 text-black scale-110"
+                    : answers[i] !== undefined
+                    ? "bg-cyan-500"
+                    : "bg-gray-700 hover:bg-gray-600"
+                }`}
+              >
+                {i + 1}
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
