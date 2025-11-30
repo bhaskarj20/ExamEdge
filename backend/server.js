@@ -84,7 +84,7 @@ app.use("/api/user", require("./routes/user"));
 app.use("/api/mock-history", require("./routes/mockHistoryRoutes"));
 app.use("/api/mockexam", require("./routes/mockExamRoutes"));
 app.use("/api/doubt", require("./routes/doubt"));
-app.use("/api/daily-plan", require("./routes/dailyPlanRoutes")); // NOW 100% WORKING
+
 app.use("/api/ai", require("./routes/aiRoutes"));
 
 // AI Doubt Route (kept outside for now — works fine)

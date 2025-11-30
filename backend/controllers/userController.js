@@ -1,10 +1,6 @@
-// controllers/userController.js
 
 const pool = require("../config/db");
 
-// ====================
-// UPDATE PROFILE (100% UNCHANGED & WORKING)
-// ====================
 exports.updateProfile = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -35,15 +31,10 @@ exports.updateProfile = async (req, res) => {
   }
 };
 
-// ====================
-// GET USER STATS — LIVE, ACCURATE, REAL-TIME
-// Works perfectly with your current mock_attempts table
-// ====================
 exports.getUserStats = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    // Fetch all mock attempts
     const attemptsQuery = `
       SELECT 
         score,
@@ -58,7 +49,6 @@ exports.getUserStats = async (req, res) => {
 
     const totalMocks = attempts.length;
 
-    // ========= CALCULATE STREAK =========
     let streak = 0;
     if (totalMocks > 0) {
       const today = new Date.now();
@@ -79,16 +69,15 @@ exports.getUserStats = async (req, res) => {
 
         if (hasAttemptOnThisDay) {
           streak++;
-          checkDate.setDate(checkDate.getDate() - 1); // go back one day
+          checkDate.setDate(checkDate.getDate() - 1); 
         } else {
-          // If we're checking today and no attempt → streak ends
-          // If we're in the past → streak already counted correctly
+          
           break;
         }
       }
     }
 
-    // ========= CALCULATE OVERALL ACCURACY =========
+    
     let totalObtained = 0;
     let totalPossible = 0;
 
@@ -101,7 +90,7 @@ exports.getUserStats = async (req, res) => {
       ? Math.round((totalObtained / totalPossible) * 100)
       : 0;
 
-    // ========= SEND RESPONSE =========
+   
     res.json({
       success: true,
       streak,

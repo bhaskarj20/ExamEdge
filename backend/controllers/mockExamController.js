@@ -1,9 +1,8 @@
-// controllers/mockExamController.js → FINAL VERSION THAT WORKS ON RENDER
 
 const path = require("path");
 const fs = require("fs");
 
-// THIS IS THE ONLY CORRECT PATH ON RENDER
+
 const mockDataPath = path.join(process.cwd(), "mock-data");
 
 exports.listMocks = (req, res) => {

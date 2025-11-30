@@ -21,7 +21,7 @@ exports.updateStreak = async (userId, completedAll) => {
     .eq('user_id', userId)
     .maybeSingle();
 
-  // NEW USER — no streak yet
+ 
   if (!streakRow) {
     const newValue = completedAll ? 1 : 0;
 
@@ -35,14 +35,14 @@ exports.updateStreak = async (userId, completedAll) => {
     return newValue;
   }
 
-  // Already completed today — no change
+
   if (streakRow.last_completed === today) {
     return streakRow.streak;
   }
 
   if (!completedAll) return streakRow.streak;
 
-  // Completed today → update streak
+
   const newStreak =
     streakRow.last_completed === yesterday ? streakRow.streak + 1 : 1;
 

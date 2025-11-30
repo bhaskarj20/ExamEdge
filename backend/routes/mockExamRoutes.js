@@ -4,13 +4,11 @@ const path = require("path");
 const fs = require("fs");
 const loadMockTests = require("../utils/loadMocks");
 
-// GET all available mocks
 router.get("/available", (req, res) => {
   const mocks = loadMockTests();
   res.json({ success: true, mocks });
 });
 
-// GET single mock by ID
 router.get("/:id", (req, res) => {
   const { id } = req.params;
   const filePath = path.join(__dirname, `../mock-data/jee/${id}.json`);

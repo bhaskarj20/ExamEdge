@@ -1,7 +1,7 @@
 const supabase = require("../config/supabase");
 
 module.exports = {
-  // Save mock test result
+
   async save(userId, mock_name, score, total_marks, accuracy) {
     const { error } = await supabase
       .from("mock_history")
@@ -17,7 +17,7 @@ module.exports = {
     return true;
   },
 
-  // Get mock history for user
+ 
   async getHistory(userId) {
     const { data, error } = await supabase
       .from("mock_history")

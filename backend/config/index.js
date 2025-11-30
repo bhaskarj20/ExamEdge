@@ -1,4 +1,4 @@
-// backend/config/index.js
+
 const pool = require("./db");
 const { generateToken, verifyToken } = require("./jwt");
 const corsOptions = require("./cors");
