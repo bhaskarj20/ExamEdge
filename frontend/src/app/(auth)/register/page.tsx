@@ -111,7 +111,7 @@ export default function Register() {
                   <option value="" disabled>Select Your Target Exam</option>
                   <option value="JEE" className="bg-gray-900 text-white">JEE Main + Advanced</option>
                   <option value="NEET" className="bg-gray-900 text-white">NEET</option>
-                  <option value="WBJEE" className="bg-gray-900 text-white">WBJEE</option>
+                  <option value="VITEEE" className="bg-gray-900 text-white">VITEEE</option>
                   <option value="BITSAT" className="bg-gray-900 text-white">BITSAT</option>
                 </select>
                 <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none">

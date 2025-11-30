@@ -172,7 +172,7 @@ export default function MonthlyPlannerPage() {
         {loading && (
           <div className="text-center py-20">
             <p className="text-4xl text-cyan-300 font-bold animate-pulse">
-              Grok is creating your perfect monthly plan...
+              Creating your perfect monthly plan...
             </p>
             <p className="text-xl text-gray-300 mt-6">This takes 10-15 seconds</p>
           </div>
