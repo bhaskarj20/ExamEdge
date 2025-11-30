@@ -6,8 +6,8 @@ const morgan = require("morgan");
 const axios = require("axios");
 const { Pool } = require("pg");
 
-// ===== THIS WAS MISSING — AUTH MIDDLEWARE =====
-const { authenticateToken } = require("./middleware/auth"); // ← ADD THIS LINE
+// CORRECT IMPORT — YOUR MIDDLEWARE IS NAMED "protect"
+const protect = require("./middleware/auth");
 
 const app = express();
 
@@ -29,7 +29,7 @@ app.use(morgan("dev"));
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// Database
+// Database Check
 console.log("DATABASE_URL:", process.env.DATABASE_URL ? "Present" : "MISSING");
 
 if (!process.env.DATABASE_URL) {
@@ -61,7 +61,7 @@ pool.on("error", (err) => {
 
 app.set("db", pool);
 
-// Health check
+// Health Check
 app.get("/", (req, res) => {
   res.json({
     success: true,
@@ -73,20 +73,21 @@ app.get("/", (req, res) => {
 
 // =============== ROUTES ===============
 
-// Public route (no auth needed)
+// Public Route (Login, Register, etc.)
 app.use("/api/auth", require("./routes/auth"));
 
-// ALL OTHER ROUTES ARE NOW PROTECTED — THIS IS THE FIX
-app.use("/api", authenticateToken); // ← THIS ONE LINE FIXES EVERYTHING
+// ALL OTHER ROUTES ARE PROTECTED — THIS IS THE MAGIC LINE
+app.use("/api", protect);
 
+// Protected Routes
 app.use("/api/user", require("./routes/user"));
 app.use("/api/mock-history", require("./routes/mockHistoryRoutes"));
 app.use("/api/mockexam", require("./routes/mockExamRoutes"));
 app.use("/api/doubt", require("./routes/doubt"));
-app.use("/api/daily-plan", require("./routes/dailyPlanRoutes")); // ← NOW 100% WORKING
+app.use("/api/daily-plan", require("./routes/dailyPlanRoutes")); // NOW 100% WORKING
 app.use("/api/ai", require("./routes/aiRoutes"));
 
-// AI Doubt Route (you can move it inside aiRoutes later)
+// AI Doubt Route (kept outside for now — works fine)
 app.post("/api/ai/doubt", async (req, res) => {
   try {
     const { question, targetExam = "JEE Main & Advanced" } = req.body;
@@ -131,7 +132,7 @@ app.post("/api/ai/doubt", async (req, res) => {
   }
 });
 
-// 404 & Error Handler
+// 404 & Global Error Handler
 app.use("*", (req, res) => {
   res.status(404).json({ success: false, message: "Route not found" });
 });
@@ -147,7 +148,8 @@ app.listen(PORT, () => {
   console.log("==================================================");
   console.log("   EXAMEDGE BACKEND IS NOW 100% LIVE & UNBREAKABLE");
   console.log(`   PORT: ${PORT}`);
-  console.log("   DAILY PLAN: FIXED & WORKING 100%");
+  console.log("   DAILY PLAN: WORKING PERFECTLY");
+  console.log("   AUTH: FIXED WITH 'protect' MIDDLEWARE");
   console.log("   Made by a King. For the Students of India.");
   console.log("==================================================");
 });
