@@ -131,7 +131,6 @@ export default function Dashboard() {
   const features = [
     { title: "Create My Own Mock", icon: Brain, color: "from-emerald-500 to-teal-600", href: "/mock-test" },
     { title: "AI Doubt Solver", icon: Sparkles, color: "from-purple-500 to-pink-600", href: "/ai-doubt-solver" },
-    { title: "Daily Target", icon: Target, color: "from-orange-500 to-red-600", href: "/daily-plan" },
     { title: "Monthly Planner", icon: Calendar, color: "from-orange-500 to-red-600", href: "/monthly-planner" },
     { title: "Short Notes", icon: StickyNote, color: "from-orange-500 to-red-600", href: "/short-notes" },
     { title: "Free NCERT Books", icon: BookOpen, color: "from-cyan-500 to-blue-600", href: "/ncert" },
