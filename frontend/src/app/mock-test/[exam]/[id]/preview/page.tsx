@@ -113,15 +113,15 @@ export default function MockPreviewPage() {
         >
           <Card className="bg-white/10 backdrop-blur-2xl border-white/20 p-16 shadow-3xl rounded-3xl">
             <h1 className="text-6xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-emerald-400 to-yellow-400 mb-10 drop-shadow-2xl">
-              {mock.paper_name || mock.title || "JEE Mock Test"}
+              {mock.paper_name || mock.title || "Mock Test"}
             </h1>
 
             <div className="text-center space-y-8 text-2xl text-gray-200 mb-16">
               <p>⏱ <strong className="text-4xl text-yellow-400">{mock.duration_minutes || mock.duration || 180} minutes</strong></p>
               <p>❓ <strong className="text-4xl text-cyan-400">{mock.questions?.length || 90} questions</strong></p>
-              <p>📊 Full Syllabus • JEE Main 2025 Pattern</p>
+              <p>📊 Full Syllabus</p>
               <p className="text-3xl text-yellow-300 font-bold mt-8">
-                +{mock.questions?.length * 4 || 360} XP on Completion
+                +{mock.questions?.length * 4 || 360}
               </p>
             </div>
 
@@ -146,7 +146,7 @@ export default function MockPreviewPage() {
               </Button>
 
               <p className="text-xl text-gray-400">
-                Once started, timer will begin • No pausing allowed • Give it like real JEE
+                Once started, timer will begin • No pausing allowed 
               </p>
             </div>
           </Card>
